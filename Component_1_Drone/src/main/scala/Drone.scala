@@ -1,15 +1,25 @@
-import com.github.nscala_time.time.Imports._
-
+import org.joda.time.DateTime
 import scala.annotation.tailrec
 import scala.collection.immutable.Stream
+import scala.language.postfixOps
 import scala.util.Random
-import scala.util.Random.{nextDouble, nextInt}
-
+import scala.util.Random.nextDouble
 
 object Drone {
   def main(args: Array[String]): Unit = {
-    println(generateSentence take 1)
+    print(generateReport(5).toString)
+  }
 
+  /**
+   * Function that generate a report
+   * @param id
+   */
+  def generateReport(id : Int): Report = {
+    val date = generateTimestamp()
+    val position = generateCurrentLocation()
+    val citizenInVincinity = (generateNameCitizen take between(2, 25))
+    val words = (generateSentence take 6)
+    new Report(date, 1, position, citizenInVincinity, words)
   }
 
   /**
@@ -18,7 +28,7 @@ object Drone {
    */
   def generateWord: Stream[String] = {
     def word : String = {
-      (Random.alphanumeric take between(2, 25)).mkString.concat(" ")
+      (Random.alphanumeric take between(2, 25)).mkString
     }
     Stream continually word
   }
@@ -29,7 +39,7 @@ object Drone {
    */
   def generateSentence : Stream[List[String]] = {
     def sentences : List[String] = {
-      sentences.::((generateWord take between(2, 25)).mkString)
+      generateWord take between(2, 25) toList
     }
     Stream continually sentences
   }
