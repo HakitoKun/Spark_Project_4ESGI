@@ -2,7 +2,7 @@ name := "Component_1_Drone"
 
 version := "0.1"
 
-scalaVersion := "2.12.13"
+scalaVersion := "2.13.6"
 
 libraryDependencies += "com.github.nscala-time" %% "nscala-time" % "2.26.0"
-libraryDependencies += "org.apache.kafka" % "kafka-clients" % "2.7.0"
+libraryDependencies += "org.apache.kafka" % "kafka-clients" % "2.8.0"

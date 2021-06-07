@@ -3,8 +3,8 @@ import org.joda.time.DateTime
 class Report (val date : DateTime,
               val id : Int,
               val position: (Double, Double),
-              val citizenInVicinity : String,
-              val words : Stream[List[String]]) {
+              val citizenInVicinity : List[String],
+              val words : List[String]) {
 
   /**
    * Overrides the function toString in order to print the report
@@ -15,8 +15,8 @@ class Report (val date : DateTime,
     id + ";" +
       date + ";" +
       position + ";" +
-      citizenInVicinity + ";" +
-      words
+      citizenInVicinity.mkString + ";" //+
+     // words.mkString
   }
 
 }
