@@ -14,9 +14,9 @@ class Report (val date : DateTime,
   override def toString: String = {
     id + ";" +
       date + ";" +
-      position + ";" +
-      citizenInVicinity.mkString + ";" //+
-     // words.mkString
+      position._1 + "," + position._2 + ";" +
+      citizenInVicinity.mkString(",") + ";" +
+      words.mkString(",")
   }
 
 }
