@@ -3,7 +3,7 @@ import org.joda.time.DateTime
 class Report (val date : DateTime,
               val id : Int,
               val position: (Double, Double),
-              val citizenInVicinity : List[String],
+              val citizenInVicinity : List[(String, Int)],
               val words : List[String]) {
 
   /**

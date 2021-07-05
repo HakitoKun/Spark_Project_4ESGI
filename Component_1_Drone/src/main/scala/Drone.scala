@@ -22,8 +22,9 @@ object Drone {
     val date = generateTimestamp()
     val position = generateCurrentLocation()
     val citizenInVicinity = ((generateNameCitizen take between(2, 25)) toList)
+    val citizenWithScore = assignPeaceScore(citizenInVicinity)
     val words = (generateWord take between(2, 25) toList)
-    new Report(date, 1, position, citizenInVicinity, words)
+    new Report(date, 1, position, citizenWithScore, words)
   }
 
   /**
@@ -76,6 +77,10 @@ object Drone {
    */
   def generatePeaceScore() : Int = {
     between(-42, 42)
+  }
+
+  def assignPeaceScore(l : List[String]) : List[(String, Int)] = {
+    l.map(name => (name, generatePeaceScore()))
   }
 
   /**
