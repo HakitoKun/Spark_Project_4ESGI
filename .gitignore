@@ -118,3 +118,7 @@ fabric.properties
 *.code-workspace
 
 # End of https://www.toptal.com/developers/gitignore/api/scala,intellij,vscode
+
+Component_1_Drone/.vscode/settings.json
+
+Component_1_Drone/.metals/metals.h2.db
