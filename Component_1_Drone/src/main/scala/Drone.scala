@@ -1,9 +1,8 @@
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord, RecordMetadata}
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer
 import org.joda.time.DateTime
 
 import java.util.Properties
-import scala.annotation.tailrec
 import scala.collection.immutable.LazyList
 import scala.language.postfixOps
 import scala.util.Random
