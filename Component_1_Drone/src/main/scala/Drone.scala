@@ -10,7 +10,7 @@ import scala.util.Random.between
 
 
 object Drone {
-  def main(args: Array[String]) : Unit = {
+  def main(args: Array[String]): Unit = {
 
 
     val alertProperty: Properties = new Properties()
@@ -25,10 +25,10 @@ object Drone {
 
     val report: Report = generateReport(1)
     println(report.toString)
-    processReport(alertProducer, report)
-
+    processReport(alertProducer, report, "Alert")
+    processReport(alertProducer, report, "Reports")
     alertProducer.close()
-   // generateWord take between(2, 25)
+    // generateWord take between(2, 25)
   }
 
   /**
@@ -36,7 +36,7 @@ object Drone {
    *
    * @param i Integer
    */
- /* @tailrec
+  /* @tailrec
   def run(i: Int): Unit = {
     val id: Int = 1
     i match {
@@ -51,12 +51,18 @@ object Drone {
     }
   }*/
 
-  def processReport(producer: KafkaProducer[String, String], r: Report) : Unit = {
+  def processReport(producer: KafkaProducer[String, String], r: Report, topic: String): Unit = {
     // Checks for negatives scores and prepare the Alert
-    val processedAlert : List[(String, Int)] = r.citizenInVicinity.collect{
-      case x if x._2 < 0 => x
+    topic match {
+      case "Alert" => {
+        val processedAlert: List[(String, Int)] = r.citizenInVicinity.collect {
+          case x if x._2 < 0 => x
+        }
+        processedAlert.foreach(x => sendAlert(producer, "Alert", x._1, x._2, r.position.toString()))
+      }
+      case "Reports" =>
+        sendReport(producer, "Reports", r)
     }
-    processedAlert.foreach(x => sendAlert(producer, "Alert", x._1, x._2, r.position.toString()))
   }
 
   /**
@@ -143,6 +149,14 @@ object Drone {
     val recordAlert = new ProducerRecord[String, String](topic, name, stringConcat)
     alertProducer.send(recordAlert)
     println(s"[$topic] The drone has sent alert for $name located at $location with a score of $score")
+  }
+
+  def sendReport(alertProducer: KafkaProducer[String, String], topic: String, report: Report): Unit = {
+    val stringConcat = report.toString
+    val recordAlert = new ProducerRecord[String, String](topic, report.id.toString, stringConcat)
+    println(stringConcat)
+    alertProducer.send(recordAlert)
+    println(s"[$topic] The drone has sent a Report")
   }
 
 }
