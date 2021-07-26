@@ -1,4 +1,6 @@
 import org.joda.time.DateTime
+import net.liftweb.json._
+import net.liftweb.json.Serialization.write
 
 class Report (val date : DateTime,
               val id : Int,
@@ -17,6 +19,15 @@ class Report (val date : DateTime,
       position._1 + "," + position._2 + ";" +
       citizenInVicinity.mkString(",") + ";" +
       words.mkString(",")
+  }
+
+  /**
+   * Convert the class Report into a JSON formatted String
+   * @return JSon String
+   */
+  def toJson: String = {
+    implicit val formats = DefaultFormats
+    write(this)
   }
 
 }
