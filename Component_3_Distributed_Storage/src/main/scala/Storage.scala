@@ -54,17 +54,11 @@ object Storage {
                 df.show()
                 df.printSchema()
 
-                // Convert complexes column into string in order to be able to save as csv
-                def stringify(c: Column) = functions.concat(lit("["), concat_ws(",", c.cast("string")), lit("]"))
-
                 val reorderedColumns : Array[String] = Array("drone_id","date", "position", "citizenInVicinity", "words")
 
                 // Reorder column, apply string cast to complexes columns
                 val res = df.select(reorderedColumns.head, reorderedColumns.tail: _*)
-                  .withColumn("position", stringify($"position"))
-                  .withColumn("citizenInVicinity", stringify($"citizenInVicinity"))
-                  .withColumn("words", stringify($"words"))
-
+              
                 res.show()
                 res.printSchema()
 //                val df1 = res.withColumn("elem", explode(col("citizenInVicinity")))
