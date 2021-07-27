@@ -1,9 +1,9 @@
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
+import scala.annotation.tailrec
 import scala.collection.immutable.LazyList
 import scala.language.postfixOps
 import scala.util.Random
@@ -17,40 +17,55 @@ object Drone {
     val alertProperty: Properties = new Properties()
 
     alertProperty.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
-    /* Name of the citizen  */
     alertProperty.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer])
-    /* Geographic Localization */
     alertProperty.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer])
 
-    val alertProducer: KafkaProducer[String, String] = new KafkaProducer[String, String](alertProperty)
+    val producer: KafkaProducer[String, String] = new KafkaProducer[String, String](alertProperty)
 
-    val report: Report = generateReport(1)
-    println(report.toString)
-    processReport(alertProducer, report, "Alert")
-    processReport(alertProducer, report, "Reports")
-    alertProducer.close()
-    // generateWord take between(2, 25)
+    run(1, 5, producer)
+    producer.close()
+
+//    val report: Report = generateReport(1)
+//    println(report.toString)
+//    processReport(alertProducer, report, "Alert")
+//    processReport(alertProducer, report, "Reports")
+//    alertProducer.close()
+//     generateWord take between(2, 25)
   }
 
   /**
-   * Hidden loop in order to launch a simulated drone
+   * Fake loop to run a simulated drone
    *
-   * @param i Integer
+   * Run the drone with a wait time of 0.5 seconds each no action iteration of i. The simulation ends when i reaches
+   * 10000
+   * This function is tail recursive
+   * @param i Starting iterator (1)
+   * @param id ID of the drone
+   * @param producer A already active producer
    */
-  /* @tailrec
-  def run(i: Int): Unit = {
-    val id: Int = 1
+  @tailrec
+  def run(i: Int, id :Int, producer: KafkaProducer[String, String]): Unit = {
     i match {
       case 1 =>
         println("Starting up the Drone POC simulation")
         generateReport(id)
-        run(i + 1)
-      case i if i % 50 == 0 =>
-        println("The drone is generating a report, sending is imminent")
-        processReport(generateReport(id))
-        run(i + 1)
+        run(i + 1, id, producer)
+      case i if i % 90 == 0 =>
+        println("The drone is generating an alert, sending is imminent")
+        val report: Report = generateReport(id)
+        processReport(producer, report, "Alert")
+        run(i + 1, id, producer)
+      case i if i % 20 == 0 =>
+        println("The drone is generating an report, sending is imminent")
+        val report_1: Report = generateReport(id)
+        processReport(producer, report_1, "Reports")
+        run(i + 1, id, producer)
+      case 10000 =>
+        println("end")
+      case _ =>
+        Thread.sleep(500)
+        run(i + 1, id, producer)
     }
-  }*/
 
   def processReport(producer: KafkaProducer[String, String], r: Report, topic: String): Unit = {
     // Checks for negatives scores and prepare the Alert
