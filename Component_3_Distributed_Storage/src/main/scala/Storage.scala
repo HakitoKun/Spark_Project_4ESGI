@@ -15,8 +15,13 @@ import scala.collection.convert.ImplicitConversions.`iterable AsScalaIterable`
 
 
 object Storage {
+
+
     def main(args: Array[String]): Unit = {
         val topic = Array("Reports")
+        Logger.getLogger("org").setLevel(Level.WARNING)
+        Logger.getLogger("akka").setLevel(Level.WARNING)
+        Logger.getLogger("kafka").setLevel(Level.WARNING)
 
         val kafkaProb = Map[String, Object](
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG -> "localhost:9092",
