@@ -70,12 +70,11 @@ object Drone {
   def processReport(producer: KafkaProducer[String, String], r: Report, topic: String): Unit = {
     // Checks for negatives scores and prepare the Alert
     topic match {
-      case "Alert" => {
+      case "Alert" =>
         val processedAlert: List[(String, Int)] = r.citizenInVicinity.collect {
           case x if x._2 < 0 => x
         }
         processedAlert.foreach(x => sendAlert(producer, "Alert", x._1, x._2, r.position.toString()))
-      }
       case "Reports" =>
         sendReport(producer, "Reports", r)
     }
@@ -86,12 +85,12 @@ object Drone {
    * @param id default parameter : 1
    */
   def generateReport(id : Int): Report = {
-    val date: String = generateTimestamp().toString
+    val date: String = generateTimestamp()
     val position: (Double, Double) = generateCurrentLocation()
     val citizenInVicinity: List[String] = (generateNameCitizen take between(2, 25)) toList
     val citizenWithScore: List[(String, Int)] = assignPeaceScore(citizenInVicinity)
     val words: List[String] = (generateWord take between(2, 25) toList)
-    new Report(date, 1, position, citizenWithScore, words)
+    new Report(date, id, position, citizenWithScore, words)
   }
 
   /**
