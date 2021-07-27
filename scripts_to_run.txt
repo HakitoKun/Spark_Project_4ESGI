@@ -1,0 +1,16 @@
+# Requires Kafka #
+
+# wget https://mirroir.wptheme.fr/apache/kafka/2.8.0/kafka_2.13-2.8.0.tgz 
+# tar -xvf kafka_2.13-2.8.0.tgz 
+# mv kafka_2.13-2.8.0 kafka
+
+# Run kafka instances
+
+
+bin/zookeeper-server-start.sh config/zookeeper.properties                                   ─╯
+bin/kafka-server-start.sh config/server.properties
+
+# Run topics
+
+bin/kafka-console-consumer.sh --topic Reports --from-beginning --bootstrap-server localhost:9092
+bin/kafka-console-consumer.sh --topic Alert --from-beginning --bootstrap-server localhost:9092
