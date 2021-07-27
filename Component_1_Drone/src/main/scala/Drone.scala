@@ -67,6 +67,16 @@ object Drone {
         run(i + 1, id, producer)
     }
 
+  }
+
+  /**
+   * This function process the generated report, sends to the Appropriate stream.
+   * Alert are for citizen who requires immediate attention
+   * Reports are for every minutes report
+   * @param producer An active producer
+   * @param r An already generated report
+   * @param topic The topic which the report will be sent
+   */
   def processReport(producer: KafkaProducer[String, String], r: Report, topic: String): Unit = {
     // Checks for negatives scores and prepare the Alert
     topic match {
@@ -95,7 +105,7 @@ object Drone {
 
   /**
    * Generate one word between 2 and 25 char
-   * @return
+   * @return a generated word
    */
   def generateWord: LazyList[String] = {
     def word: String = {
@@ -117,7 +127,7 @@ object Drone {
 
   /**
    * Generate a GPS coordinate tuple (Latitude, Longitude)
-   * @return
+   * @return A tuple of longitude and latitude coordinate
    */
   def generateCurrentLocation(): (Double, Double) = {
     (between(-90.0, 90.0), between(-180.0, 180.0))
@@ -125,7 +135,7 @@ object Drone {
 
   /**
    * Generate a single word defining name from a LazyList of alphanumeric
-   * @return
+   * @return A generated name of a citizen
    */
   def generateNameCitizen(): LazyList[String] = {
     def word: String = {
@@ -139,12 +149,17 @@ object Drone {
    * Positive integer is for good behaviour
    * Negative integer is for bad / dangerous behaviour
    * Neutral 0 integer is for neutral behaviour
-   * @return Int
+   * @return Randomized Int between -42 and 42
    */
   def generatePeaceScore(): Int = {
     between(-42, 42)
   }
 
+  /**
+   * Assign a randomized peace score to every citizen via a mapping
+   * @param l List[String] of the citizen
+   * @return A List of tuple String, Int
+   */
   def assignPeaceScore(l : List[String]): List[(String, Int)] = {
     l.map(name => (name, generatePeaceScore()))
   }
@@ -157,15 +172,14 @@ object Drone {
     java.time.LocalDateTime.now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
   }
 
-  /* Alert Support Producer */
 
   /**
    * A producer that sends an Alert to the Alert Consumer
-   * @param alertProducer
-   * @param topic
-   * @param name
-   * @param score
-   * @param location
+   * @param alertProducer A producer
+   * @param topic A topic where the message is sent (Reports)
+   * @param name A citizen name which have a negative score
+   * @param score A score (negative generally)
+   * @param location Coordinate location (String formatted tuple of double, double)
    */
   def sendAlert(alertProducer: KafkaProducer[String, String], topic: String, name: String, score: Int, location: String): Unit = {
     val stringConcat = location.concat(",").concat(score.toString)
@@ -176,9 +190,9 @@ object Drone {
 
   /**
    * A producer that sends a report to the report consumer
-   * @param alertProducer
-   * @param topic
-   * @param report
+   * @param alertProducer A producer
+   * @param topic A topic where the message is sent (Reports)
+   * @param report An already generated report to send as a message
    */
   def sendReport(alertProducer: KafkaProducer[String, String], topic: String, report: Report): Unit = {
     val stringConcat = report.toJson
