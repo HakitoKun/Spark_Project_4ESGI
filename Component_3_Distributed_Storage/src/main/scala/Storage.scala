@@ -74,7 +74,7 @@ object Storage {
 
                 // Save to CSV
 
-                res.write.format("com.databricks.spark.csv").option("header", "true").mode("append").save("Data_Reports.csv")
+                res.write.format("com.databricks.spark.csv").option("header", "true").mode("append").save("../Saved_Data/Data_Reports.csv")
 //                val df2 = df1.withColumn("name", $"elem._1")
 //                  .withColumn("score", $"elem._2")
 //                  .withColumn("longitude", col("position._1$mcD$sp"))
