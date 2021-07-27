@@ -1,17 +1,14 @@
-import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions.{concat_ws, lit}
+import org.apache.spark.sql.{Column, SparkSession, functions}
+import org.apache.spark.streaming._
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
 import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
 import org.apache.spark.streaming.kafka010._
-//import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.streaming._
+import java.util.logging.{Level, Logger}
 
-import java.time.Duration
-import java.util.Properties
-import scala.annotation.tailrec
-import scala.collection.convert.ImplicitConversions.`iterable AsScalaIterable`
 
 
 object Storage {
@@ -56,6 +53,35 @@ object Storage {
                 val df = spark.read.json(spark.createDataset(rdd))
                 df.show()
                 df.printSchema()
+
+                // Convert complexes column into string in order to be able to save as csv
+                def stringify(c: Column) = functions.concat(lit("["), concat_ws(",", c.cast("string")), lit("]"))
+
+                val reorderedColumns : Array[String] = Array("drone_id","date", "position", "citizenInVicinity", "words")
+
+                // Reorder column, apply string cast to complexes columns
+                val res = df.select(reorderedColumns.head, reorderedColumns.tail: _*)
+                  .withColumn("position", stringify($"position"))
+                  .withColumn("citizenInVicinity", stringify($"citizenInVicinity"))
+                  .withColumn("words", stringify($"words"))
+
+                res.show()
+                res.printSchema()
+//                val df1 = res.withColumn("elem", explode(col("citizenInVicinity")))
+//                df1.show()
+//                df1.printSchema()
+//                println("\n\n\n\n")
+
+                // Save to CSV
+
+                res.write.format("com.databricks.spark.csv").option("header", "true").mode("append").save("Data_Reports.csv")
+//                val df2 = df1.withColumn("name", $"elem._1")
+//                  .withColumn("score", $"elem._2")
+//                  .withColumn("longitude", col("position._1$mcD$sp"))
+//                  .withColumn("latitude", col("position._2$mcD$sp"))
+//                  .select($"drone_id", $"date", $"longitude", $"latitude", $"name", $"score", $"words")
+//                df2.show()
+//                df2.printSchema()
             }
         })
 
