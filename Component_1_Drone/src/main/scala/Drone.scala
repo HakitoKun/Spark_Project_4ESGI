@@ -1,7 +1,7 @@
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Properties
 import scala.collection.immutable.LazyList
 import scala.language.postfixOps
@@ -138,8 +138,8 @@ object Drone {
    * Generate the current local TimeStamp using DateTime
    * @return
    */
-  def generateTimestamp(): LocalDate = {
-    java.time.LocalDate.now
+  def generateTimestamp(): LocalDateTime = {
+    java.time.LocalDateTime.now
   }
 
   /* Alert Support Producer */
