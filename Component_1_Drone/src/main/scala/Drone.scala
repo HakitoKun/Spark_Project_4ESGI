@@ -1,7 +1,7 @@
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer
-import org.joda.time.DateTime
 
+import java.time.LocalDateTime
 import java.util.Properties
 import scala.collection.immutable.LazyList
 import scala.language.postfixOps
@@ -10,7 +10,7 @@ import scala.util.Random.between
 
 
 object Drone {
-  def main(args: Array[String]) : Unit = {
+  def main(args: Array[String]): Unit = {
 
 
     val alertProperty: Properties = new Properties()
@@ -25,10 +25,10 @@ object Drone {
 
     val report: Report = generateReport(1)
     println(report.toString)
-    processReport(alertProducer, report)
-
+    processReport(alertProducer, report, "Alert")
+    processReport(alertProducer, report, "Reports")
     alertProducer.close()
-   // generateWord take between(2, 25)
+    // generateWord take between(2, 25)
   }
 
   /**
@@ -36,7 +36,7 @@ object Drone {
    *
    * @param i Integer
    */
- /* @tailrec
+  /* @tailrec
   def run(i: Int): Unit = {
     val id: Int = 1
     i match {
@@ -51,12 +51,18 @@ object Drone {
     }
   }*/
 
-  def processReport(producer: KafkaProducer[String, String], r: Report) : Unit = {
+  def processReport(producer: KafkaProducer[String, String], r: Report, topic: String): Unit = {
     // Checks for negatives scores and prepare the Alert
-    val processedAlert : List[(String, Int)] = r.citizenInVicinity.collect{
-      case x if x._2 < 0 => x
+    topic match {
+      case "Alert" => {
+        val processedAlert: List[(String, Int)] = r.citizenInVicinity.collect {
+          case x if x._2 < 0 => x
+        }
+        processedAlert.foreach(x => sendAlert(producer, "Alert", x._1, x._2, r.position.toString()))
+      }
+      case "Reports" =>
+        sendReport(producer, "Reports", r)
     }
-    processedAlert.foreach(x => sendAlert(producer, "Alert", x._1, x._2, r.position.toString()))
   }
 
   /**
@@ -64,7 +70,7 @@ object Drone {
    * @param id default parameter : 1
    */
   def generateReport(id : Int): Report = {
-    val date: DateTime = generateTimestamp()
+    val date: String = generateTimestamp().toString
     val position: (Double, Double) = generateCurrentLocation()
     val citizenInVicinity: List[String] = (generateNameCitizen take between(2, 25)) toList
     val citizenWithScore: List[(String, Int)] = assignPeaceScore(citizenInVicinity)
@@ -132,17 +138,39 @@ object Drone {
    * Generate the current local TimeStamp using DateTime
    * @return
    */
-  def generateTimestamp(): DateTime = {
-    DateTime.now()
+  def generateTimestamp(): LocalDateTime = {
+    java.time.LocalDateTime.now
   }
 
   /* Alert Support Producer */
 
+  /**
+   * A producer that sends an Alert to the Alert Consumer
+   * @param alertProducer
+   * @param topic
+   * @param name
+   * @param score
+   * @param location
+   */
   def sendAlert(alertProducer: KafkaProducer[String, String], topic: String, name: String, score: Int, location: String): Unit = {
     val stringConcat = location.concat(",").concat(score.toString)
     val recordAlert = new ProducerRecord[String, String](topic, name, stringConcat)
     alertProducer.send(recordAlert)
     println(s"[$topic] The drone has sent alert for $name located at $location with a score of $score")
+  }
+
+  /**
+   * A producer that sends a report to the report consumer
+   * @param alertProducer
+   * @param topic
+   * @param report
+   */
+  def sendReport(alertProducer: KafkaProducer[String, String], topic: String, report: Report): Unit = {
+    val stringConcat = report.toJson
+    val recordAlert = new ProducerRecord[String, String](topic, report.drone_id.toString, stringConcat)
+    println(stringConcat)
+    alertProducer.send(recordAlert)
+    println(s"[$topic] The drone has sent a Report")
   }
 
 }
