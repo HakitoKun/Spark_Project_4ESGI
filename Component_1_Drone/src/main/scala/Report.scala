@@ -1,9 +1,9 @@
-import org.joda.time.DateTime
 import net.liftweb.json._
 import net.liftweb.json.Serialization.write
 
-class Report (val date : DateTime,
-              val id : Int,
+
+class Report (val date : String,
+              val drone_id : Int,
               val position: (Double, Double),
               val citizenInVicinity : List[(String, Int)],
               val words : List[String]) {
@@ -14,7 +14,7 @@ class Report (val date : DateTime,
    * @return
    */
   override def toString: String = {
-    id + ";" +
+    drone_id + ";" +
       date + ";" +
       position._1 + "," + position._2 + ";" +
       citizenInVicinity.mkString(",") + ";" +

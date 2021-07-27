@@ -1,7 +1,7 @@
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer
-import org.joda.time.DateTime
 
+import java.time.LocalDate
 import java.util.Properties
 import scala.collection.immutable.LazyList
 import scala.language.postfixOps
@@ -70,7 +70,7 @@ object Drone {
    * @param id default parameter : 1
    */
   def generateReport(id : Int): Report = {
-    val date: DateTime = generateTimestamp()
+    val date: String = generateTimestamp().toString
     val position: (Double, Double) = generateCurrentLocation()
     val citizenInVicinity: List[String] = (generateNameCitizen take between(2, 25)) toList
     val citizenWithScore: List[(String, Int)] = assignPeaceScore(citizenInVicinity)
@@ -138,8 +138,8 @@ object Drone {
    * Generate the current local TimeStamp using DateTime
    * @return
    */
-  def generateTimestamp(): DateTime = {
-    DateTime.now()
+  def generateTimestamp(): LocalDate = {
+    java.time.LocalDate.now
   }
 
   /* Alert Support Producer */
@@ -166,8 +166,8 @@ object Drone {
    * @param report
    */
   def sendReport(alertProducer: KafkaProducer[String, String], topic: String, report: Report): Unit = {
-    val stringConcat = report.toString
-    val recordAlert = new ProducerRecord[String, String](topic, report.id.toString, stringConcat)
+    val stringConcat = report.toJson
+    val recordAlert = new ProducerRecord[String, String](topic, report.drone_id.toString, stringConcat)
     println(stringConcat)
     alertProducer.send(recordAlert)
     println(s"[$topic] The drone has sent a Report")
