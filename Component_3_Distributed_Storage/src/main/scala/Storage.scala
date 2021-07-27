@@ -51,8 +51,8 @@ object Storage {
                 val rdd : RDD[String] = line.map(_.value.toString)
                 import spark.implicits._
                 val df = spark.read.json(spark.createDataset(rdd))
-                df.show()
-                df.printSchema()
+//                df.show()
+//                df.printSchema()
 
                 val reorderedColumns : Array[String] = Array("drone_id","date", "position", "citizenInVicinity", "words")
 
