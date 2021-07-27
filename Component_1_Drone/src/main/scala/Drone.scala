@@ -144,6 +144,14 @@ object Drone {
 
   /* Alert Support Producer */
 
+  /**
+   * A producer that sends an Alert to the Alert Consumer
+   * @param alertProducer
+   * @param topic
+   * @param name
+   * @param score
+   * @param location
+   */
   def sendAlert(alertProducer: KafkaProducer[String, String], topic: String, name: String, score: Int, location: String): Unit = {
     val stringConcat = location.concat(",").concat(score.toString)
     val recordAlert = new ProducerRecord[String, String](topic, name, stringConcat)
@@ -151,6 +159,12 @@ object Drone {
     println(s"[$topic] The drone has sent alert for $name located at $location with a score of $score")
   }
 
+  /**
+   * A producer that sends a report to the report consumer
+   * @param alertProducer
+   * @param topic
+   * @param report
+   */
   def sendReport(alertProducer: KafkaProducer[String, String], topic: String, report: Report): Unit = {
     val stringConcat = report.toString
     val recordAlert = new ProducerRecord[String, String](topic, report.id.toString, stringConcat)
