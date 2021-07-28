@@ -1,6 +1,6 @@
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-
+import spark.implicits._
 
 
 object Analysis {
@@ -27,6 +27,11 @@ object Analysis {
           .select($"drone_id", $"Date", $"Time", $"longitude", $"latitude", $"name", $"score", $"words")
         df2.show()
         df2.printSchema()
+
+        df2.select("name").show()
+        df2.select($"name", $"score").show()
+        df2.filter($"score" > 20).show()
+        df2.select($"name", $"longitude", $"latitude", $"Date").filter($"score" < 70).show()
 
         println("\n\n\n\n")
 
