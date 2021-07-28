@@ -51,20 +51,14 @@ object Storage {
                 val rdd : RDD[String] = line.map(_.value.toString)
                 import spark.implicits._
                 val df = spark.read.json(spark.createDataset(rdd))
-                df.show()
-                df.printSchema()
-
-                // Convert complexes column into string in order to be able to save as csv
-                def stringify(c: Column) = functions.concat(lit("["), concat_ws(",", c.cast("string")), lit("]"))
+//                df.show()
+//                df.printSchema()
 
                 val reorderedColumns : Array[String] = Array("drone_id","date", "position", "citizenInVicinity", "words")
 
                 // Reorder column, apply string cast to complexes columns
                 val res = df.select(reorderedColumns.head, reorderedColumns.tail: _*)
-                  .withColumn("position", stringify($"position"))
-                  .withColumn("citizenInVicinity", stringify($"citizenInVicinity"))
-                  .withColumn("words", stringify($"words"))
-
+              
                 res.show()
                 res.printSchema()
 //                val df1 = res.withColumn("elem", explode(col("citizenInVicinity")))
@@ -72,9 +66,9 @@ object Storage {
 //                df1.printSchema()
 //                println("\n\n\n\n")
 
-                // Save to CSV
+                // Save to JSON
 
-                res.write.format("com.databricks.spark.csv").option("header", "true").mode("append").save("../Saved_Data/Data_Reports.csv")
+                res.write.format("json").option("header", "true").mode("append").save("../Saved_Data/Data_Reports.json")
 //                val df2 = df1.withColumn("name", $"elem._1")
 //                  .withColumn("score", $"elem._2")
 //                  .withColumn("longitude", col("position._1$mcD$sp"))

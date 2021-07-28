@@ -1,7 +1,15 @@
 import net.liftweb.json._
 import net.liftweb.json.Serialization.write
 
-
+/**
+ * A report
+ * @constructor Create a report with the given parameters
+ * @param date A date in String format
+ * @param drone_id A drone ID
+ * @param position A geographic position in (double, double)
+ * @param citizenInVicinity A list of citizen in the vicinity of the drone
+ * @param words A list of word heard by the drone
+ */
 class Report (val date : String,
               val drone_id : Int,
               val position: (Double, Double),
