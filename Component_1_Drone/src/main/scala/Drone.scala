@@ -60,7 +60,7 @@ object Drone {
         val report_1: Report = generateReport(id)
         processReport(producer, report_1, "Reports")
         run(i + 1, id, producer)
-      case 10000 =>
+      case 10001 =>
         println("end")
       case _ =>
         Thread.sleep(500)
